@@ -1,0 +1,92 @@
+﻿@model IEnumerable<Clientes.Models.Cliente>
+
+@{
+    ViewData["Title"] = "Lista";
+}
+
+<p>
+    <a asp-action="Create">Adicionar</a>
+</p>
+<form method="get" action="@Url.Action("Index")">
+    <div class="row mb-3" >
+        <div class="col w-150">
+            <label for="nome">Nome:</label>
+            <input type="text" name="nome" id="nome" class="form-control" width="200"/>
+        </div>
+        <div class="col w-150">
+            <label for="documento">Documento:</label>
+            <input type="text" name="documento" id="documento" class="form-control"  width="200" />
+        </div>
+        <div class="col w-150" >
+            <button id="searchButton" class="btn btn-primary">Filtrar</button>
+        </div>
+    </div>
+</form>
+
+
+<table class="table" id="clientesTable">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Tipo Cliente</th>
+            <th>Documento</th>
+            <th>Data Cadastro</th>
+            <th>Telefone</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+       
+    </tbody>
+   
+</table>
+
+@section Scripts {
+ 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#searchButton').click(function (e) {
+                e.preventDefault();
+                loadClientes();
+            });
+
+            function loadClientes() {
+                var nome = $('#nome').val();
+                var documento = $('#documento').val();
+
+                $.ajax({
+                    url: '@Url.Action("Search", "Clientes")',
+                    data: { nome: nome, documento: documento },
+                    success: function (data) {
+                        var tbody = $('#clientesTable tbody');
+                        tbody.empty();
+                        
+                        $.each(data, function (i, cliente) {
+                            console.log(cliente);
+                            var row = '<tr>' +
+                                '<td>' + cliente.nome + '</td>' +
+                                '<td>' + cliente.tipoCliente + '</td>' +
+                                '<td>' + cliente.documento + '</td>' +
+                                '<td>' + cliente.cadastro + '</td>' +
+                                '<td>' + cliente.telefone + '</td>' +
+                                '<td>' +
+                                '<a href="/Clientes/Edit/' + cliente.id + '">Editar</a> | ' +
+                                '<a href="/Clientes/Details/' + cliente.id + '">Consultar</a> | ' +
+                                '<a href="/Clientes/Delete/' + cliente.id + '">Excluir</a>' +
+                                '</td>' +
+                                '</tr>';
+                            tbody.append(row);
+                        });
+                    },
+                    error: function () {
+                        alert('Erro ao carregar os clientes.');
+                    }
+                });
+            }
+
+            // Carregar clientes quando a página for carregada
+            loadClientes();
+        });
+    </script>
+}
